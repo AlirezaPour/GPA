@@ -1,0 +1,38 @@
+//Client's Rates
+r_think = 0.05; 
+r_request_c = 14.0 ;   
+
+//Server's Rates
+r_request_s = 200.0 ;	
+r_log = 120.0; 
+r_break =  0.0006; 
+r_fix =   0.0004; 
+
+numberOfServers = 10.0;
+numberOfClients = 10000.0;
+//EndOfParameterDefinition
+
+// component definitions
+Server_idle = (request,r_request_s).Server_logging + (break,r_break).Server_beingFixed;
+Server_logging = (log,r_log).Server_idle;
+Server_beingFixed = (fix,r_fix).Server_idle;
+
+Client_thinking = ( think, r_think).Client_requesting;
+Client_requesting = ( request, r_request_c). Client_thinking ;
+
+// system equation
+Clients{Client_thinking[numberOfClients]} <request> Servers{Server_idle[numberOfServers]}
+
+ODEs(stopTime=16000.0,stepSize=0.1,density=100){
+	E[Clients:Client_requesting];
+
+	Var[Clients:Client_requesting];
+	
+	// Skewness
+	SCM[Clients:Client_requesting,3];
+
+	// Kurtosis
+   SCM[Clients:Client_requesting,4];
+}
+
+
